@@ -1,7 +1,12 @@
 import requests, re, json
-from modules.Console import Console
+from bs4 import BeautifulSoup
 
-BASE = "https://{}.citybus.gr/el/stops"
+from modules.Console import Console
+from modules.Cache import Cache
+from utils.regex import city_url_regex
+
+BASE = "https://citybus.gr/"
+CITY_BASE = "https://{}.citybus.gr/el/stops"
 STATION_VEHICLES_URI = "https://rest.citybus.gr/api/v1/el/{}/stops/live/{}"
 STATION_DATA_URI = "https://rest.citybus.gr/api/v1/el/{}/stops/{}"
 
@@ -10,14 +15,24 @@ class Telematics:
     def __init__( self ):
 
         self.session = requests.Session()
+        self.cache = Cache()
+        self.city_name = None
         self.session.headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0",
             "Content-Type": "application/json; charset=utf-8"
         }
 
+    def set_city_name( self, city_name ):
+
+        self.city_name = city_name
+
     def set_api_token( self ):
 
-        response = self.session.get( BASE )
+        if self.city_name == None:
+
+            return Console.error("Please select a city")
+
+        response = self.session.get( CITY_BASE )
 
         token = re.search(r"token = '(.*)'", response.text).group(1)
 
@@ -49,6 +64,30 @@ class Telematics:
 
             return data
         
+        except Exception as e:
+
+            raise e
+            
+    def get_all_cities( self ):
+
+        try:
+
+            response = self.session.get( BASE )
+
+            soup = BeautifulSoup( response.text, features='lxml' )
+
+            cities_links_elements = soup.find_all("a", { 'class': ['btn', 'btn-primary', 'text-nowrap'] })
+        
+            cities = []
+
+            for cities_links_element in cities_links_elements:
+
+                city = city_url_regex.findall( cities_links_element['href'] )
+
+                cities.append( city[0] )
+
+            return cities
+
         except Exception as e:
 
             raise e
