@@ -6,16 +6,17 @@ from modules.Database import database
 from modules.Menu import Menu, MenuOption
 from modules.KeyboardEvent import KeyboardEvent
 from modules.Logger import Logger
+from modules.Session import Session
 
-from utils.regex import city_url_regex
+from utils.database import initialize_preferences_table, get_db_preferences, set_db_last_city
 
-from models.models import StationModel
+from models.models import StationModel, PreferencesModel
 
 live_tracking = False
 
 def handle_change_city():
 
-    cities = telemetics.get_all_cities()
+    cities = telematics.get_all_cities()
 
     for index, city in enumerate(cities):
 
@@ -23,18 +24,41 @@ def handle_change_city():
 
     city_index = int(Menu.input("enter city number"))
 
-    telemetics.set_city_name( cities[ city_index - 1 ] )
+    select_city_name = cities[ city_index - 1 ]
+
+    telematics.set_city_name( select_city_name )
+
+    telematics.set_city_code(  )
+
+    set_db_last_city( select_city_name )
+
+def handle_change_station():
+
+    stations = telematics.get_cities_stations()
+
+    for index, station in enumerate(stations):
+
+        Menu.print_option( index + 1, station['name'] )
+
+    station_index = int(Menu.input("enter station number"))
 
 def menu():
 
+    # session = Session()
+
+    # session.get( 'https://alexandroupoli.citybus.gr/el/stops' )
+
+    # input()
+
     Console.clear()
 
-    Menu.print_menu_config("CITY    |", telemetics.city_name)
-    Menu.print_menu_config("STATION |", telemetics.city_name)
+    Menu.print_menu_config("CITY    |", telematics.city_name)
+    Menu.print_menu_config("STATION |", telematics.city_name)
     Menu.print_menu_seperator( 50 )
 
     Menu.menu((
         ("Change City", handle_change_city),
+        ("Change Station", handle_change_station),
     ))
 
     menu()
@@ -47,13 +71,24 @@ if __name__ == "__main__":
 
         logger.info("Program Started")
 
-        telemetics = Telematics()
+        telematics = Telematics()
 
         database.connect()
 
         database.create_table("stations", StationModel)
+        database.create_table("preferences", PreferencesModel)
 
-        telemetics.set_api_token()
+        initialize_preferences_table()
+
+        preferences = get_db_preferences()
+
+        city_name = preferences[0][1]
+
+        telematics.set_city_name( city_name )
+
+        telematics.set_city_code(  )
+
+        telematics.set_api_token(  )
 
         logger.info("Initialization Completed")
 

@@ -27,3 +27,4 @@ class Keys:
     STATION = "STN"
     CITY = "CT"
     ALL_CITIES = "ACTS"
+    ALL_STATIONS="ASTNS"

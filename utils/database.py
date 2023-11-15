@@ -27,3 +27,23 @@ def get_db_station( station_id ):
     station = database.query_data(f"SELECT * FROM stations WHERE id='{ station_id }'")
 
     return station
+
+def set_db_last_city( city_name ):
+
+    database.update_data("preferences", {
+        "last_city": city_name
+    }, 'id="preferences"')
+
+def get_db_preferences():
+
+    preferences = database.query_data("SELECT * FROM preferences")
+
+    return preferences
+
+def initialize_preferences_table():
+
+    preferences = database.query_data("SELECT * FROM preferences")
+
+    if len( preferences ) <= 0:
+
+        database.raw("INSERT INTO preferences ( id, last_city, last_station ) VALUES ( 'preferences', '', '' )")

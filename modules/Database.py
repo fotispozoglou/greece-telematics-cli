@@ -49,6 +49,12 @@ class Database:
         cursor = self.conn.cursor()
         cursor.execute(query)
         return cursor.fetchall()
+    
+    def raw(self, query):
+        self.connect()
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        self.conn.commit()
 
     def __del__(self):
         self.close()
