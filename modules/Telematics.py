@@ -2,7 +2,7 @@ import requests, re, json
 from bs4 import BeautifulSoup
 
 from modules.Console import Console
-from modules.Cache import Cache
+from modules.Cache import Cache, Keys
 from utils.regex import city_url_regex
 
 BASE = "https://citybus.gr/"
@@ -72,6 +72,12 @@ class Telematics:
 
         try:
 
+            if Cache.has( Keys.ALL_CITIES ):
+
+                return Cache.get( Keys.ALL_CITIES )
+            
+            Console.info("REQUESTING CITIES")
+
             response = self.session.get( BASE )
 
             soup = BeautifulSoup( response.text, features='lxml' )
@@ -85,6 +91,8 @@ class Telematics:
                 city = city_url_regex.findall( cities_links_element['href'] )
 
                 cities.append( city[0] )
+
+            Cache.add(f"{ Keys.ALL_CITIES }", cities)
 
             return cities
 

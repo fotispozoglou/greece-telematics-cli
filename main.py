@@ -7,7 +7,6 @@ from modules.Menu import Menu, MenuOption
 from modules.KeyboardEvent import KeyboardEvent
 from modules.Logger import Logger
 
-from utils.database import add_station
 from utils.regex import city_url_regex
 
 from models.models import StationModel
