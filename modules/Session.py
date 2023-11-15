@@ -32,7 +32,7 @@ class Session:
 
             return Cache.get( url )
 
-        response = self.session.get( url )
+        response = self.session.get( url, params={} )
 
         return self.cache_middleware( url, response, cache )
 
