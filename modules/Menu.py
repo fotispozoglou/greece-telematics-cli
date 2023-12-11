@@ -1,51 +1,35 @@
-from termcolor import colored
+from prompt_toolkit import PromptSession
+from prompt_toolkit.patch_stdout import patch_stdout
 
-class Menu:
+class Menu():
 
-    @staticmethod
-    def print_menu_config( label, value ):
+    def __init__( self ):
 
-        print(f"{ colored(  label, 'blue', attrs=['bold'] ) } { colored( value if value != None else 'Not Set', 'green' if value != None else 'red' ) }")
+        self.session = PromptSession()
 
-    @staticmethod
-    def print_menu_seperator( length, character = '-' ):
+        self.commands = []
 
-        print(f"{ colored( str(character * length), 'white' ) }")
+    def register( self, command, action ):
 
-    @staticmethod
-    def print_option( index, option_name ):
+        self.commands.append({
+            "command": command,
+            "action": action
+        })
 
-        print(f"{ colored( f'[{ index }]', 'blue' ) } { option_name }")
+    async def start_menu_routine( self ):
 
-    @staticmethod
-    def input( prompt = 'insert' ):
+        while True:
+            with patch_stdout():
+                result = await self.session.prompt_async('> ')
+            
+            if result:
+                
+                for command in self.commands:
 
-        option = str(input(f"{ colored(prompt, 'blue') } > "))
+                    if result == "exit":
 
-        return option
+                        exit(0)
 
-    @staticmethod
-    def select_option_prompt( prompt = 'select' ):
+                    if result == command['command']:
 
-        option = input(f"{ colored(prompt, 'blue') } > ")
-
-        return option
-
-    @staticmethod
-    def menu( options ):
-
-        for index, option in enumerate( options ):
-
-            Menu.print_option( index + 1, option[ 0 ] )
-
-        option = Menu.select_option_prompt('select')
-
-        if int(option) > len( options ):
-
-            return Menu.menu( options )
-
-        return options[ int(option) - 1 ][1]()
-    
-def MenuOption( name, action ):
-
-    return ( name, action )
+                        command['action']()

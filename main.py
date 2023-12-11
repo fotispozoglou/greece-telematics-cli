@@ -1,98 +1,50 @@
-import traceback
+import traceback, asyncio, time, threading
 
 from modules.Console import Console
 from modules.Telematics import Telematics
-from modules.Database import database
-from modules.Menu import Menu, MenuOption
-from modules.KeyboardEvent import KeyboardEvent
+from modules.Database import Database
 from modules.Logger import Logger
-from modules.Session import Session
+from modules.Menu import Menu
 
-from utils.database import initialize_preferences_table, get_db_preferences, set_db_last_city
+def print_help():
 
-from models.models import StationModel, PreferencesModel
+    print("""Available commands:
 
-live_tracking = False
+Status commands:
+city              : Print's selected city.
+station           : Print's selected station.
+live              : Track next bus of current station.
 
-def handle_change_city():
+Action commands:
+add city ( name )    : Add a city by name.
+add station ( code ) : Add a station by code ( code can be found on the official telematics site ).
+change city          : Change the select city.
+change station       : Change the selected station.""")
 
-    cities = telematics.get_all_cities()
-
-    for index, city in enumerate(cities):
-
-        Menu.print_option( index + 1, city )
-
-    city_index = int(Menu.input("enter city number"))
-
-    select_city_name = cities[ city_index - 1 ]
-
-    telematics.set_city_name( select_city_name )
-
-    telematics.set_city_code(  )
-
-    set_db_last_city( select_city_name )
-
-def handle_change_station():
-
-    stations = telematics.get_cities_stations()
-
-    for index, station in enumerate(stations):
-
-        Menu.print_option( index + 1, station['name'] )
-
-    station_index = int(Menu.input("enter station number"))
-
-def menu():
-
-    # session = Session()
-
-    # session.get( 'https://alexandroupoli.citybus.gr/el/stops' )
-
-    # input()
+def start_menu():
 
     Console.clear()
 
-    Menu.print_menu_config("CITY    |", telematics.city_name)
-    Menu.print_menu_config("STATION |", telematics.city_name)
-    Menu.print_menu_seperator( 50 )
-
-    Menu.menu((
-        ("Change City", handle_change_city),
-        ("Change Station", handle_change_station),
-    ))
-
-    menu()
+    asyncio.run(menu.start_menu_routine())
 
 if __name__ == "__main__":
 
+    logger = Logger('main_logger', 'logs/logs.log')
+    menu = Menu()
+    
     try:
-
-        logger = Logger('main_logger', 'logs/logs.log')
 
         logger.info("Program Started")
 
         telematics = Telematics()
 
-        database.connect()
-
-        database.create_table("stations", StationModel)
-        database.create_table("preferences", PreferencesModel)
-
-        initialize_preferences_table()
-
-        preferences = get_db_preferences()
-
-        city_name = preferences[0][1]
-
-        telematics.set_city_name( city_name )
-
-        telematics.set_city_code(  )
-
-        telematics.set_api_token(  )
+        database = Database()
 
         logger.info("Initialization Completed")
 
-        menu()
+        menu.register("help", print_help)
+
+        start_menu()
 
     except Exception as e:
 
@@ -111,7 +63,3 @@ if __name__ == "__main__":
     finally:
 
         logger.info("Program Ended")
-
-# enter_press_event = KeyboardEvent([ keyboard.Key.enter ], disable_live_tracking)
-
-# enter_press_event.start()
