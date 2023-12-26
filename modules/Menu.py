@@ -1,20 +1,19 @@
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 
+from modules.Command import Command
+
 class Menu():
 
     def __init__( self ):
 
         self.session = PromptSession()
 
-        self.commands = []
+        self.commands : list[Command] = []
 
-    def register( self, command, action ):
+    def register( self, command : Command ):
 
-        self.commands.append({
-            "command": command,
-            "action": action
-        })
+        self.commands.append( command )
 
     async def start_menu_routine( self ):
 
@@ -30,6 +29,6 @@ class Menu():
 
                         exit(0)
 
-                    if result == command['command']:
+                    if command.matches( result ):
 
-                        command['action']()
+                        command.execute( result )

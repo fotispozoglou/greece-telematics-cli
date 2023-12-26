@@ -1,10 +1,12 @@
-import traceback, asyncio, time, threading
+import traceback, asyncio, time, threading, os
 
 from modules.Console import Console
 from modules.Telematics import Telematics
 from modules.Database import Database
 from modules.Logger import Logger
 from modules.Menu import Menu
+from modules.Command import Command
+from modules.Option import Option
 
 def print_help():
 
@@ -20,6 +22,10 @@ add city ( name )    : Add a city by name.
 add station ( code ) : Add a station by code ( code can be found on the official telematics site ).
 change city          : Change the select city.
 change station       : Change the selected station.""")
+
+def clear_screen():
+
+    os.system("clear")
 
 def start_menu():
 
@@ -42,7 +48,11 @@ if __name__ == "__main__":
 
         logger.info("Initialization Completed")
 
-        menu.register("help", print_help)
+        help_command = Command("help", print_help)
+        clear_command = Command("clear", clear_screen)
+
+        menu.register( help_command )
+        menu.register( clear_command )
 
         start_menu()
 
