@@ -1,16 +1,7 @@
 import os
 from termcolor import colored
 
-COLORS = {
-    'grey',
-    'red',
-    'green',
-    'yellow',
-    'blue',
-    'magenta',
-    'cyan',
-    'white'
-}
+from prompt_toolkit import print_formatted_text, HTML
 
 class Console:
 
@@ -20,26 +11,27 @@ class Console:
         os.system("clear")
 
     @staticmethod
-    def prompt( color, message, bg_color ):
+    def print( color, message ):
 
-        return input(f"{ colored( f' {message} ', color, on_color=bg_color, attrs=['bold'] ) } » ")
-
-    @staticmethod
-    def print( color, message, on_color = None, attrs = None ):
-
-        print( colored( message, color, on_color, attrs ) )
+        print_formatted_text(f"{ message }")
 
     @staticmethod
     def info( message ):
 
-        print(f'{ colored("[~]", "yellow") } { message }')
+        html = f'<p><span fg="#F0A001"><b>[~]</b></span> { message }</p>'
+
+        print_formatted_text(HTML(html))
 
     @staticmethod
     def success( message ):
 
-        print(f'{ colored("[+]", "green") } { message }')
+        html = f'<p><span fg="#00F511"><b>[+]</b></span> { message }</p>'
+
+        print_formatted_text(HTML(html))
 
     @staticmethod
     def error( message, flag = None ):
 
-        print(f'{ colored("[-]", "red") }{ colored( f" ({ flag }) ", "blue" ) if flag != None else "" } { message }')
+        html = f'<p><span fg="#F50801"><b>[-]</b></span> { message }</p>'
+
+        print_formatted_text(HTML(html))

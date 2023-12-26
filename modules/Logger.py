@@ -40,3 +40,4 @@ class Logger:
         self.info(f"Session id { self.sessionID }")
         self.logger.exception( message )
 
+logger = Logger('main_logger', 'logs/logs.log')

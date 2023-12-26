@@ -1,5 +1,7 @@
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
+from prompt_toolkit.completion import WordCompleter, NestedCompleter
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory, Suggestion, AutoSuggest
 
 from modules.Command import Command
 
@@ -19,7 +21,7 @@ class Menu():
 
         while True:
             with patch_stdout():
-                result = await self.session.prompt_async('> ')
+                result = await self.session.prompt_async('> ', auto_suggest=AutoSuggestFromHistory())
             
             if result:
                 

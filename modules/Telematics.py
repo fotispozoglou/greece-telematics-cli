@@ -18,6 +18,7 @@ class Telematics:
         self.session = requests.Session()
         self.city_name = None
         self.city_code = None
+        self.station_code = None
         self.session.headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0",
             "Content-Type": "application/json; charset=utf-8"
@@ -92,7 +93,7 @@ class Telematics:
             
             response = self.session.get( BASE )
 
-            soup = BeautifulSoup( response.text, features='lxml' )
+            soup = BeautifulSoup( response.text, features='html.parser' )
 
             cities_links_elements = soup.find_all("a", { 'class': ['btn', 'btn-primary', 'text-nowrap'] })
         
@@ -124,10 +125,6 @@ class Telematics:
                                     
             response = self.session.get( CITY_STATIONS_URI.format( self.city_code ) )
 
-            print(response.headers.get('content-type'))
-
-            input()
-
             data = json.loads( response.text )
 
             Cache.add( key, data )
@@ -138,3 +135,5 @@ class Telematics:
 
             raise e
         
+
+telematics = Telematics()
